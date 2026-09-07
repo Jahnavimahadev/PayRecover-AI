@@ -1,0 +1,22 @@
+payment_id,customer,amount,failure_reason,failure_description,previous_attempts,status
+P001,Customer_01,5000,temporary,bank server is temporarily unavailable,0,failed
+P002,Customer_02,2500,temporary,payment gateway timed out,1,failed
+P003,Customer_03,15000,temporary,temporary network failure,3,failed
+P004,Customer_04,3200,insufficient_funds,customer does not have enough money in the bank account,0,failed
+P005,Customer_05,7500,expired_card,customer card has expired and is no longer valid,0,failed
+P006,Customer_06,12000,temporary,bank service is temporarily down,0,failed
+P007,Customer_07,4500,insufficient_funds,not enough funds in customer bank account,1,failed
+P008,Customer_08,18000,temporary,payment gateway connection timed out,2,failed
+P009,Customer_09,6000,expired_card,expired debit card used for payment,0,failed
+P010,Customer_10,9000,temporary,temporary bank network failure,1,failed
+P011,Customer_11,3500,other,unknown payment error requires investigation,0,failed
+P012,Customer_12,22000,temporary,bank server is currently unavailable,4,failed
+P013,Customer_13,8000,insufficient_funds,customer balance is too low for payment,0,failed
+P014,Customer_14,5500,temporary,temporary network connectivity problem,0,failed
+P015,Customer_15,14000,expired_card,credit card has expired,1,failed
+P016,Customer_16,3000,temporary,bank service temporarily unavailable,1,failed
+P017,Customer_17,11000,other,unusual payment failure needs review,0,failed
+P018,Customer_18,6500,insufficient_funds,insufficient account balance,2,failed
+P019,Customer_19,20000,temporary,temporary payment gateway failure,2,failed
+P020,Customer_20,4000,temporary,bank server temporarily unavailable,0,failed
+
