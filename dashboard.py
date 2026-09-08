@@ -56,13 +56,9 @@ st.markdown("## 📊 Executive Recovery Metrics")
 
 total_at_risk = results["amount"].sum()
 
-total_recovered = results[
-    "Recovered Amount"
-].sum()
+total_recovered = results["Recovered Amount"].sum()
 
-total_unrecovered = (
-    total_at_risk - total_recovered
-)
+total_unrecovered = total_at_risk - total_recovered
 
 recovery_rate = (
     total_recovered / total_at_risk * 100
@@ -113,7 +109,6 @@ st.markdown("## 💸 Revenue Loss Analysis")
 loss_col1, loss_col2 = st.columns(2)
 
 with loss_col1:
-
     st.metric(
         "Revenue Still at Risk",
         f"₹{total_unrecovered:,.0f}"
@@ -122,8 +117,7 @@ with loss_col1:
 with loss_col2:
 
     unrecovered_count = (
-        results["Outcome"]
-        == "NOT RECOVERED"
+        results["Outcome"] == "NOT RECOVERED"
     ).sum()
 
     st.metric(
@@ -142,15 +136,10 @@ failure_revenue = (
     results
     .groupby("failure_reason")["amount"]
     .sum()
-    .sort_values(
-        ascending=False
-    )
+    .sort_values(ascending=False)
 )
 
-st.bar_chart(
-    failure_revenue
-)
-
+st.bar_chart(failure_revenue)
 
 failure_table = (
     results
@@ -188,8 +177,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
 
     approved_count = (
-        results["Safety Status"]
-        == "APPROVED"
+        results["Safety Status"] == "APPROVED"
     ).sum()
 
     st.metric(
@@ -197,12 +185,10 @@ with col1:
         approved_count
     )
 
-
 with col2:
 
     blocked_count = (
-        results["Safety Status"]
-        == "BLOCKED"
+        results["Safety Status"] == "BLOCKED"
     ).sum()
 
     st.metric(
@@ -210,12 +196,10 @@ with col2:
         blocked_count
     )
 
-
 with col3:
 
     high_risk_count = (
-        results["Risk Level"]
-        == "HIGH"
+        results["Risk Level"] == "HIGH"
     ).sum()
 
     st.metric(
@@ -243,12 +227,10 @@ with col1:
         f"{average_confidence:.1f}%"
     )
 
-
 with col2:
 
     gemini_count = (
-        results["Analysis Source"]
-        == "GEMINI"
+        results["Analysis Source"] == "GEMINI"
     ).sum()
 
     st.metric(
@@ -256,12 +238,10 @@ with col2:
         gemini_count
     )
 
-
 with col3:
 
     fallback_count = (
-        results["Analysis Source"]
-        == "LOCAL FALLBACK"
+        results["Analysis Source"] == "LOCAL FALLBACK"
     ).sum()
 
     st.metric(
@@ -281,9 +261,7 @@ strategy_counts = (
     .value_counts()
 )
 
-st.bar_chart(
-    strategy_counts
-)
+st.bar_chart(strategy_counts)
 
 
 # =========================================================
@@ -294,18 +272,12 @@ st.markdown("## 💰 Revenue Recovered by Strategy")
 
 strategy_revenue = (
     results
-    .groupby("Recovery Action")[
-        "Recovered Amount"
-    ]
+    .groupby("Recovery Action")["Recovered Amount"]
     .sum()
-    .sort_values(
-        ascending=False
-    )
+    .sort_values(ascending=False)
 )
 
-st.bar_chart(
-    strategy_revenue
-)
+st.bar_chart(strategy_revenue)
 
 
 # =========================================================
@@ -319,9 +291,7 @@ risk_counts = (
     .value_counts()
 )
 
-st.bar_chart(
-    risk_counts
-)
+st.bar_chart(risk_counts)
 
 
 # =========================================================
@@ -331,8 +301,7 @@ st.bar_chart(
 st.markdown("## 🛡️ Safety Overrides")
 
 override_count = (
-    results["Safety Override"]
-    == True
+    results["Safety Override"] == True
 ).sum()
 
 st.metric(
@@ -352,9 +321,7 @@ outcome_counts = (
     .value_counts()
 )
 
-st.bar_chart(
-    outcome_counts
-)
+st.bar_chart(outcome_counts)
 
 
 # =========================================================
@@ -426,14 +393,10 @@ st.dataframe(
 
 
 # =========================================================
-# FOOTER
+# INTERACTIVE PAYMENT TEST
 # =========================================================
 
 st.markdown("---")
-
-# =========================================================
-# INTERACTIVE PAYMENT TEST
-# =========================================================
 
 st.markdown("## 🧪 Test a Payment")
 
@@ -443,6 +406,7 @@ st.write(
 )
 
 test_col1, test_col2 = st.columns(2)
+
 
 with test_col1:
 
@@ -468,6 +432,7 @@ with test_col1:
         ]
     )
 
+
 with test_col2:
 
     test_description = st.text_input(
@@ -484,6 +449,10 @@ with test_col2:
     )
 
 
+# =========================================================
+# TEST PAYMENT ANALYSIS
+# =========================================================
+
 if st.button(
     "🤖 Analyze Test Payment",
     type="primary"
@@ -491,9 +460,13 @@ if st.button(
 
     from gemini_agent import ask_gemini
     from safety_engine import evaluate_action
-    from recovery_strategy import recommend_recovery_strategy
+    from recovery_strategy import (
+        recommend_recovery_strategy
+    )
 
-    # AI diagnosis
+    # -----------------------------------------------------
+    # AI DIAGNOSIS
+    # -----------------------------------------------------
 
     test_analysis = ask_gemini(
         payment_description=test_description,
@@ -518,20 +491,36 @@ if st.button(
         "Unknown failure"
     )
 
-    # Recovery strategy
 
-    test_strategy = (
-        recommend_recovery_strategy(
-            failure_reason=test_reason,
-            failure_description=test_description,
-            amount=test_amount,
-            previous_attempts=test_attempts,
-            risk_level="LOW",
-            confidence=test_confidence
-        )
+    # -----------------------------------------------------
+    # RECOVERY STRATEGY
+    # -----------------------------------------------------
+
+    test_strategy = recommend_recovery_strategy(
+        failure_reason=test_reason,
+        failure_description=test_description,
+        amount=test_amount,
+        previous_attempts=test_attempts,
+        risk_level="LOW",
+        confidence=test_confidence
     )
 
-    # Safety engine
+
+    # -----------------------------------------------------
+    # SAFETY ENGINE
+    # -----------------------------------------------------
+
+    safety_candidate = test_strategy["strategy"]
+
+    # Keep RETRY as the candidate for temporary failures
+    # with exhausted retry attempts so the deterministic
+    # safety engine can explicitly BLOCK the retry.
+
+    if (
+        test_reason == "temporary"
+        and test_attempts >= 2
+    ):
+        safety_candidate = "RETRY"
 
     (
         test_final_action,
@@ -540,43 +529,48 @@ if st.button(
         test_risk_level,
         test_risk_score
     ) = evaluate_action(
-        recommended_action=test_strategy[
-            "strategy"
-        ],
+        recommended_action=safety_candidate,
         amount=test_amount,
         previous_attempts=test_attempts,
         payment_status="failed"
     )
 
-    # Results
 
-    st.markdown(
-        "### 🤖 AI Decision"
-    )
+    # -----------------------------------------------------
+    # AI DECISION
+    # -----------------------------------------------------
+
+    st.markdown("### 🤖 AI Decision")
 
     result_col1, result_col2, result_col3 = st.columns(3)
 
     with result_col1:
+
         st.metric(
             "AI Recommendation",
             test_ai_action
         )
 
     with result_col2:
+
         st.metric(
             "Recovery Strategy",
             test_strategy["strategy"]
         )
 
     with result_col3:
+
         st.metric(
             "Final Action",
             test_final_action
         )
 
-    st.markdown(
-        "### 🛡️ Safety Decision"
-    )
+
+    # -----------------------------------------------------
+    # SAFETY DECISION
+    # -----------------------------------------------------
+
+    st.markdown("### 🛡️ Safety Decision")
 
     if test_safety_status == "APPROVED":
 
@@ -588,9 +582,19 @@ if st.button(
     else:
 
         st.error(
-            f"🛑 Action BLOCKED: "
+            f"🛑 Candidate Action BLOCKED: "
+            f"{safety_candidate}"
+        )
+
+        st.success(
+            f"Final Action: "
             f"{test_final_action}"
         )
+
+
+    # -----------------------------------------------------
+    # PAYMENT DETAILS
+    # -----------------------------------------------------
 
     st.write(
         "**Customer:**",
@@ -622,15 +626,27 @@ if st.button(
         test_risk_score
     )
 
-    st.markdown(
-        "### 📋 Safety Checks"
-    )
+
+    # -----------------------------------------------------
+    # SAFETY CHECKS
+    # -----------------------------------------------------
+
+    st.markdown("### 📋 Safety Checks")
 
     for reason in test_safety_reasons:
+
         st.write(
             "•",
             reason
         )
+
+
+# =========================================================
+# FOOTER
+# =========================================================
+
+st.markdown("---")
+
 st.caption(
     "PayRecover AI | Synthetic payment data | "
     "AI recommendations are controlled by deterministic "
